@@ -21,46 +21,33 @@ margin_bottom = 5.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 2 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="CharacterPanel" type="PanelContainer" parent="."]
 anchor_right = 0.2
 anchor_bottom = 1.0
 margin_right = -10.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="MenuPanel" type="PanelContainer" parent="."]
 anchor_left = 0.8
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 10.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="TextPanel" type="PanelContainer" parent="."]
 anchor_left = 0.2
 anchor_top = 0.7
 anchor_right = 0.8
 anchor_bottom = 1.0
-margin_left = 0.463989
-margin_top = 0.199982
-margin_right = 0.495972
-margin_bottom = -4.0
+margin_left = 0.199997
+margin_right = -0.200012
+margin_bottom = -90.0
 custom_styles/panel = SubResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Text" type="RichTextLabel" parent="TextPanel"]
 margin_left = 20.0
 margin_top = 20.0
-margin_right = 594.432
-margin_bottom = 155.8
+margin_right = 594.0
+margin_bottom = 70.0
 text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 __meta__ = {
 "_edit_use_anchors_": false
@@ -73,9 +60,6 @@ anchor_bottom = 0.7
 margin_left = 0.463989
 margin_right = 0.35199
 margin_bottom = -3.05176e-05
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Panel" type="Panel" parent="PicturePanel"]
 margin_left = 7.0
@@ -83,3 +67,12 @@ margin_top = 7.0
 margin_right = 607.288
 margin_bottom = 413.0
 custom_styles/panel = SubResource( 2 )
+
+[node name="Choices" type="ItemList" parent="."]
+margin_left = 220.0
+margin_top = 504.0
+margin_right = 800.0
+margin_bottom = 583.0
+
+[connection signal="gui_input" from="TextPanel/Text" to="." method="_on_Text_gui_input"]
+[connection signal="item_selected" from="Choices" to="." method="_on_Choises_item_selected"]
