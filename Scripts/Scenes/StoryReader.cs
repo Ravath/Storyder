@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public class StoryReader : Control
+public partial class StoryReader : Control
 {
 	// Declare member variables here. Examples:
 	// private int a = 2;
