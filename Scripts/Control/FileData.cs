@@ -18,6 +18,7 @@ namespace Storyder
             worksheet.Cell("C1").Value = "DevNotes";
             worksheet.Cell("D1").Value = "Choices";
             worksheet.Cell("E1").Value = "Effects";
+            worksheet.Cell("F1").Value = "PostEffects";
             worksheet.FirstRow().Style
                 .Font.SetBold()
                 .Fill.SetBackgroundColor(XLColor.CornflowerBlue)
@@ -51,6 +52,7 @@ namespace Storyder
                 string devNotes = row.GetCellString(3);
                 string choices = row.GetCellString(4);
                 string effects = row.GetCellString(5);
+                string posteffects = row.GetCellString(6);
 
                 // Check and clean values
                 // -- label
@@ -71,6 +73,9 @@ namespace Storyder
                 effects = effects.Replace("\n","");
                 effects = effects.Replace("\r","");
                 // effects = effects.Replace(" ","");
+                // -- posteffects
+                posteffects = posteffects.Replace("\n","");
+                posteffects = posteffects.Replace("\r","");
 
                 // Init the paragraph
                 StoryParagraph row_paragraph = new()
@@ -120,8 +125,27 @@ namespace Storyder
                     });
                 }
 
-                // Post-Effects
+                // Effects
                 foreach(string effectString in effects.Split(';'))
+                {
+                    if(string.IsNullOrWhiteSpace(effectString))
+                        continue;
+                    
+                    string[] args = effectString.Split(':');
+                    string effectName = args[0].Trim().ToUpper();
+
+                    StoryEffect row_effect = GetEffectByCommand(effectName, args[1..]);
+
+                    if(row_effect != null)
+                        row_paragraph.Effects.Add(row_effect);
+                    else
+                        Log.LogErr("Row {0}. Could not parse effect name '{1}'.",
+                            row.RowNumber(),
+                            effectName);
+                }
+
+                // Post-Effects
+                foreach(string effectString in posteffects.Split(';'))
                 {
                     if(string.IsNullOrWhiteSpace(effectString))
                         continue;

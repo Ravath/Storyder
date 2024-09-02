@@ -17,7 +17,8 @@ L'histoire peut être entièrement rédigée dans un fichier Excel, qui sera cha
  - *Effects* : Les effets spéciaux qui sont effectués avant l'affichage du texte.
 
 #### Effects
-The differents effets sont appliqués avant l7affichage du texte, et dans l'ordre d'implementation.
+The differents effets sont appliqués avant l'affichage du texte, et dans l'ordre d'implementation.
+Les PostEffects sont des effets appliqués après que le joueur est fait son choix et avant de passer au paragraphe suivant.
 
 ##### Nomenclature
  filepath : un chemin de fichier relatif au dossier contenant le fichier de sauvegarde.

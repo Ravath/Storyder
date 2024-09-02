@@ -13,7 +13,7 @@ public partial class StoryReader : Control
 	private PictureDisplay pictureDisplay;
 	private Control pictureLayout;
 
-	private StoryParagraph _currentStoryChunk;
+	private StoryParagraph _currentStoryParagraph;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -44,20 +44,20 @@ public partial class StoryReader : Control
 		}
 	}
 
-	public void SetStoryChunk(StoryParagraph storyChunk)
+	public void SetStoryChunk(StoryParagraph storyParagraph)
 	{
-		_currentStoryChunk = storyChunk;
+		_currentStoryParagraph = storyParagraph;
 
-		// Actuate Post-Effects
-		foreach (var effect in storyChunk.PostEffects)
+		// Actuate Pre-Effects
+		foreach (var effect in storyParagraph.Effects)
 		{
 			effect.Actuate(this);
 		}
 
 		// Display Text
-		textDisplay.Text = storyChunk.Text + "\n\n";
+		textDisplay.Text = storyParagraph.Text + "\n\n";
 		int index = 0;
-		foreach(var choice in storyChunk.Choices)
+		foreach(var choice in storyParagraph.Choices)
 		{
 			textDisplay.Text += string.Format("\t[url={0}]{1}[/url]\n", index++, choice.Text);
 		}
@@ -66,8 +66,15 @@ public partial class StoryReader : Control
 
 	public void _on_text_meta_clicked(string meta)
 	{
+		// Actuate Post-Effects
+		foreach (var effect in _currentStoryParagraph.PostEffects)
+		{
+			effect.Actuate(this);
+		}
+
+		// Go to next paragraph
 		int index = int.Parse(meta);
-		SetStoryChunk(_currentStoryChunk.Choices[index].Next);
+		SetStoryChunk(_currentStoryParagraph.Choices[index].Next);
 	}
 
 	public void SetPicture(FileInfo filepath)

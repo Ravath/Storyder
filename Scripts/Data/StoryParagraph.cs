@@ -9,6 +9,7 @@ namespace Storyder
         public string Text { get; set; }
         public string DevNotes { get; set; }
         public List<StoryChoice> Choices { get; } = new List<StoryChoice>();
+        public List<StoryEffect> Effects { get; } = new List<StoryEffect>();
         public List<StoryEffect> PostEffects { get; } = new List<StoryEffect>();
     }
 }
