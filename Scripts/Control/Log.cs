@@ -8,7 +8,7 @@ namespace Storyder
 {
     public static class Log
     {
-        public static void LogErr(string message, params object?[] args)
+        public static void LogErr(string message, params object[] args)
         {
             if(args.Length == 0)
             {
@@ -20,7 +20,7 @@ namespace Storyder
             }
         }
         
-        public static void LogInfo(string message, params object?[] args)
+        public static void LogInfo(string message, params object[] args)
         {
             if(args.Length == 0)
             {

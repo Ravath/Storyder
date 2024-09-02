@@ -4,7 +4,7 @@ Un lecteur et éditeur de livre dont vous êtes le héros
 ## Usage
 
 ### Excel
-L'histoire peut être entièrement rédigée dans un fchier Excel, qui sera chargé par l'application.
+L'histoire peut être entièrement rédigée dans un fichier Excel, qui sera chargé par l'application.
 
 #### Colonnes
  - *ID* : L'identifiant unique de ce paragraphe dans l'histoire.
@@ -55,13 +55,14 @@ The differents effets sont appliqués avant l7affichage du texte, et dans l'ordr
   - ADD : Plays the music on top of already played ones.
 TODO : MUSIC LOOP TYPE(Simple, repeatX, repeatDelay, pitch...)
 
- - IF:<condition>:<effect> : only one effect (use GOTO and APPLY for more complex stuff).
+ - IF:<condition>:<effect>:<else_effect> : only one effect (use GOTO and APPLY for more complex stuff).
   - <condition> : <varpath>=<val> : the variable is equal to the given value.
   - <condition> : <varpath>!<val> : the variable is different from the given value.
   - <condition> : <varpath><<val> : the variable is inferior to the given value.
   - <condition> : <varpath>><val> : the variable is superior to the given value.
 
 TODO : random and skill test related commands
+ - TEST:<condition>:<effect>:<else_effect> : Same as IF condition, but prints the result to the player.
 TODO : combat related commands
 TODO : GAME_OVER/VICTORY
 TODO : post Commands
