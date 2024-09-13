@@ -1,10 +1,9 @@
 using DocumentFormat.OpenXml.Drawing;
 using Godot;
 using Storyder;
-using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Weaver.Tales;
 
 public partial class StoryReader : Control
 {

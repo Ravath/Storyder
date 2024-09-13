@@ -9,6 +9,6 @@
     <PackageReference Include="ClosedXML" Version="0.102.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RPG_Suite\Weaver\Weaver.csproj" />
+    <ProjectReference Include="..\Weaver\Weaver.csproj" />
   </ItemGroup>
 </Project>

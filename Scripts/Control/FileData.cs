@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Godot;
+using Weaver.Tales;
 
 namespace Storyder
 {

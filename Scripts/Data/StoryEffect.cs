@@ -1,130 +1,133 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using DocumentFormat.OpenXml.CustomProperties;
 using Godot;
-using Storyder;
+using Weaver.Tales;
 
-namespace Storyder
+namespace Storyder;
+
+public abstract class StoryEffect : IStoryEffect
 {
-    public abstract class StoryEffect
+    public string ScriptCommand;
+
+    public static FileInfo GetPictureFile(string filename)
     {
-        public string ScriptCommand;
-
-        public static FileInfo GetPictureFile(string filename)
+        FileInfo filepath = new FileInfo(StoryderProperties.RessourcePath + "/" + filename);
+        if(!filepath.Exists)
+            throw new ArgumentException(string.Format("There is no file '{0}'.", filepath));
+        if(filepath.Extension != ".jpg"
+        && filepath.Extension != ".jpeg"
+        && filepath.Extension != ".png"
+        && filepath.Extension != ".webp")
         {
-            FileInfo filepath = new FileInfo(StoryderProperties.RessourcePath + "/" + filename);
-            if(!filepath.Exists)
-                throw new ArgumentException(string.Format("There is no file '{0}'.", filepath));
-            if(filepath.Extension != ".jpg"
-            && filepath.Extension != ".jpeg"
-            && filepath.Extension != ".png"
-            && filepath.Extension != ".webp")
-            {
-                // TODO : check godot documentation for real capability
-                throw new ArgumentException(string.Format("Can't read file extension '{0}' as a picture.", filepath.Extension));
-            }
-            return filepath;
+            // TODO : check godot documentation for real capability
+            throw new ArgumentException(string.Format("Can't read file extension '{0}' as a picture.", filepath.Extension));
         }
-
-        public static FileInfo GetMusicFile(string filename)
-        {
-            FileInfo filepath = new FileInfo(StoryderProperties.RessourcePath + "/" + filename);
-            if(!filepath.Exists)
-                throw new ArgumentException(string.Format("There is no file '{0}'.", filepath));
-            if(filepath.Extension != ".wav"
-            && filepath.Extension != ".ogg")
-            {
-                // TODO : check godot documentation for real capability
-                throw new ArgumentException(string.Format("Can't read file extension '{0}' as an audio.", filepath.Extension));
-            }
-            return filepath;
-        }
-
-        public abstract void Actuate(StoryReader storyReader);
+        return filepath;
     }
 
-    public class PictureEffect : StoryEffect
+    public static FileInfo GetMusicFile(string filename)
     {
-        public FileInfo filepath;
-
-        public static PictureEffect Create(string[] args)
+        FileInfo filepath = new FileInfo(StoryderProperties.RessourcePath + "/" + filename);
+        if(!filepath.Exists)
+            throw new ArgumentException(string.Format("There is no file '{0}'.", filepath));
+        if(filepath.Extension != ".wav"
+        && filepath.Extension != ".ogg")
         {
-            Debug.Assert(args.Length > 0);
-            string filepath = args[0];
-            PictureEffect ret = new()
-            {
-                filepath = GetPictureFile(filepath)
-            };
-
-            return ret;
+            // TODO : check godot documentation for real capability
+            throw new ArgumentException(string.Format("Can't read file extension '{0}' as an audio.", filepath.Extension));
         }
-
-        public override void Actuate(StoryReader storyReader)
-        {
-            storyReader.HidePicturePanel(false);
-            storyReader.SetPicture(filepath);
-        }
+        return filepath;
     }
 
-    public class MusicEffect : StoryEffect
+    public abstract void Actuate(StoryReader storyReader);
+
+    public void Actuate(object target)
     {
-        public FileInfo filepath;
+        Actuate((StoryReader) target);
+    }
+}
 
-        public static MusicEffect Create(string[] args)
+public class PictureEffect : StoryEffect
+{
+    public FileInfo filepath;
+
+    public static PictureEffect Create(string[] args)
+    {
+        Debug.Assert(args.Length > 0);
+        string filepath = args[0];
+        PictureEffect ret = new()
         {
-            Debug.Assert(args.Length > 0);
-            string filepath = args[0];
-            MusicEffect ret = new()
-            {
-                filepath = GetMusicFile(filepath)
-            };
+            filepath = GetPictureFile(filepath)
+        };
 
-            return ret;
-        }
-
-        public override void Actuate(StoryReader storyReader)
-        {
-            storyReader.SetMusic(filepath);
-        }
+        return ret;
     }
 
-    public class TextOnlyEffect : StoryEffect
+    public override void Actuate(StoryReader storyReader)
     {
-        public bool setTextonly;
-        public static TextOnlyEffect Create(string[] args)
+        storyReader.HidePicturePanel(false);
+        storyReader.SetPicture(filepath);
+    }
+}
+
+public class MusicEffect : StoryEffect
+{
+    public FileInfo filepath;
+
+    public static MusicEffect Create(string[] args)
+    {
+        Debug.Assert(args.Length > 0);
+        string filepath = args[0];
+        MusicEffect ret = new()
         {
-            Debug.Assert(args.Length <= 1);
-            bool option = true;
-            if(args.Length == 1)
+            filepath = GetMusicFile(filepath)
+        };
+
+        return ret;
+    }
+
+    public override void Actuate(StoryReader storyReader)
+    {
+        storyReader.SetMusic(filepath);
+    }
+}
+
+public class TextOnlyEffect : StoryEffect
+{
+    public bool setTextonly;
+    public static TextOnlyEffect Create(string[] args)
+    {
+        Debug.Assert(args.Length <= 1);
+        bool option = true;
+        if(args.Length == 1)
+        {
+            string strarg = args[0].Trim().ToLower();
+            switch(strarg)
             {
-                string strarg = args[0].Trim().ToLower();
-                switch(strarg)
-                {
-                    case "false":
-                    case "off":
-                        option = false;
-                        break;
-                    case "true":
-                    case "on":
-                        option = true;
-                        break;
-                    default :
-                        Log.LogErr("Can't parse TextOnly argument '{0}'.", strarg);
-                        break;
-                }
+                case "false":
+                case "off":
+                    option = false;
+                    break;
+                case "true":
+                case "on":
+                    option = true;
+                    break;
+                default :
+                    Log.LogErr("Can't parse TextOnly argument '{0}'.", strarg);
+                    break;
             }
-            TextOnlyEffect ret = new()
-            {
-                setTextonly = option
-            };
-
-            return ret;
         }
-
-        public override void Actuate(StoryReader storyReader)
+        TextOnlyEffect ret = new()
         {
-            storyReader.HidePicturePanel(setTextonly);
-        }
+            setTextonly = option
+        };
+
+        return ret;
+    }
+
+    public override void Actuate(StoryReader storyReader)
+    {
+        storyReader.HidePicturePanel(setTextonly);
     }
 }
