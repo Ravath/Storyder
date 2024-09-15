@@ -1,18 +1,25 @@
 using DocumentFormat.OpenXml.Drawing;
 using Godot;
 using Storyder;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
+using Weaver.Heroes.Body;
 using Weaver.Tales;
 
 public partial class StoryReader : Control
 {
 	private RichTextLabel textDisplay;
+	private RichTextLabel characterDisplay;
 	private AudioStreamPlayer audioPlayer;
 	private PictureDisplay pictureDisplay;
 	private Control pictureLayout;
 
 	private StoryParagraph _currentStoryParagraph;
+	private List<IStoryChoice> _currentChoices = new();
+	private string _appendedText = "";
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -22,13 +29,59 @@ public partial class StoryReader : Control
 		pictureDisplay = this.GetNode<PictureDisplay>("VBoxContainer/PictureLayout/PictureDisplay");
 		pictureLayout = this.GetNode<Control>("VBoxContainer/PictureLayout");
 		audioPlayer = this.GetNode<AudioStreamPlayer>("AudioStreamPlayer");
+		characterDisplay = this.GetNode<RichTextLabel>("CharacterPanel/CharacterSheet");
+		
 
 		// FileData.CreateDefaultExcel("Template.xlsx");
 		GetStory("Ressources/LaSorciereDesNeiges/Story.xlsx");
 		// GetStory("Ressources/Test/Story.xlsx");
+		Game.Static.System.Init();
+		InitDisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
+		DisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
 	}
 
-	public void GetStory(string filepath)
+	public void InitDisplayCharacter(Module module)
+	{
+		characterDisplay.Text = module.ModuleName + "\n";
+		foreach(Module m in module.GetChildren<Module>())
+		{
+			if(m is IValue<int> mi) {
+				mi.OnValueChanged += ActualiseIntValues;
+			}
+			else if(m is IValue<string> ms) {
+				ms.OnValueChanged += ActualiseStringValues;
+			}
+		}
+	}
+
+	public void DisplayCharacter(Module module)
+	{
+		characterDisplay.Text = module.ModuleName + "\n";
+		foreach(Module m in module.GetChildren<Module>())
+		{
+			if(m is IValue<int> mi) {
+				characterDisplay.Text += string.Format("   {0} : {1}\n" , m.ModuleName, mi.Value);
+			}
+			else if(m is IValue<string> ms) {
+				characterDisplay.Text += string.Format("   {0} : {1}\n" , m.ModuleName, ms.Value);
+			}
+			else {
+				characterDisplay.Text += string.Format(" {0} \n" , m.ModuleName);
+			}
+		}
+	}
+
+    public void ActualiseStringValues(IValue<string> sender)
+    {
+		DisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
+    }
+
+    public void ActualiseIntValues(IValue<int> sender)
+    {
+		DisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
+    }
+
+    public void GetStory(string filepath)
 	{
 		FileInfo fileInfo = new FileInfo(filepath);
 		if(!fileInfo.Exists)
@@ -46,6 +99,9 @@ public partial class StoryReader : Control
 	public void SetStoryChunk(StoryParagraph storyParagraph)
 	{
 		_currentStoryParagraph = storyParagraph;
+		_currentChoices.Clear();
+		_currentChoices.AddRange(storyParagraph.Choices);
+		_appendedText = "";
 
 		// Actuate Pre-Effects
 		foreach (var effect in storyParagraph.Effects)
@@ -53,10 +109,13 @@ public partial class StoryReader : Control
 			effect.Actuate(this);
 		}
 
+		// Check for end game
+		Game.Static.System.DoEffectChecks(this);
+
 		// Display Text
-		textDisplay.Text = storyParagraph.Text + "\n\n";
+		textDisplay.Text = storyParagraph.Text + "\n" + _appendedText + "\n\n";
 		int index = 0;
-		foreach(var choice in storyParagraph.Choices)
+		foreach(var choice in _currentChoices)
 		{
 			textDisplay.Text += string.Format("\t[url={0}]{1}[/url]\n", index++, choice.Text);
 		}
@@ -73,7 +132,7 @@ public partial class StoryReader : Control
 
 		// Go to next paragraph
 		int index = int.Parse(meta);
-		SetStoryChunk(_currentStoryParagraph.Choices[index].Next);
+		SetStoryChunk(_currentChoices[index].Next);
 	}
 
 	public void SetPicture(FileInfo filepath)
@@ -95,4 +154,28 @@ public partial class StoryReader : Control
     {
         pictureLayout.Visible = !hide;
     }
+
+	public void AppendText(string text)
+	{
+		_appendedText += text;
+	}
+
+	public void AppendText(string text, params object[] args)
+	{
+		_appendedText += string.Format(text + "\n", args);
+	}
+
+	public void AppendChoice(IStoryChoice newChoice)
+	{
+		_currentChoices.Add(newChoice);
+	}
+
+	public void SetEndGame(bool victory) {
+		_currentChoices.Clear();
+		_currentChoices.Add(new StoryChoice() {
+			Text= victory? "Victory" : "Game Over",
+			Next = null // TODO maybe instructions on game over (retry, blahblahblah) and credits on victory ?
+		});
+		// TODO And then, return to main menu when there is one
+	}
 }

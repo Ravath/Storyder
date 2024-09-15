@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Godot;
+using SixLabors.Fonts;
 using Weaver.Tales;
 
 namespace Storyder
@@ -127,81 +128,170 @@ namespace Storyder
                 }
 
                 // Effects
-                foreach(string effectString in effects.Split(';'))
-                {
-                    if(string.IsNullOrWhiteSpace(effectString))
-                        continue;
-                    
-                    string[] args = effectString.Split(':');
-                    string effectName = args[0].Trim().ToUpper();
-
-                    StoryEffect row_effect = GetEffectByCommand(effectName, args[1..]);
-
-                    if(row_effect != null)
-                        row_paragraph.Effects.Add(row_effect);
-                    else
-                        Log.LogErr("Row {0}. Could not parse effect name '{1}'.",
-                            row.RowNumber(),
-                            effectName);
-                }
+                var convertedEffects = GetEffects(effects.Split(';'), row);
+                row_paragraph.Effects.AddRange(convertedEffects);
 
                 // Post-Effects
-                foreach(string effectString in posteffects.Split(';'))
-                {
-                    if(string.IsNullOrWhiteSpace(effectString))
-                        continue;
-                    
-                    string[] args = effectString.Split(':');
-                    string effectName = args[0].Trim().ToUpper();
-
-                    StoryEffect row_effect = GetEffectByCommand(effectName, args[1..]);
-
-                    if(row_effect != null)
-                        row_paragraph.PostEffects.Add(row_effect);
-                    else
-                        Log.LogErr("Row {0}. Could not parse post-effect name '{1}'.",
-                            row.RowNumber(),
-                            effectName);
-                }
+                convertedEffects.Clear();
+                convertedEffects = GetEffects(posteffects.Split(';'), row);
+                row_paragraph.PostEffects.AddRange(convertedEffects);
 
                 // Add to Story
                 ret_story.AddChunk(row_paragraph);
             }
 
-            // Properly link choices
+            // Post process the paragraphs
             foreach(var paragraph in ret_story.Paragraphs)
             {
-                foreach(var choice in paragraph.Choices)
-                {
-                    if(ret_story.HasChunk(choice.Label))
-                        choice.Next = ret_story.GetChunk(choice.Label);
-                    else
-                        Log.LogErr("Paragraph {0}. Can't find paragraph Label : '{1}'.",
-                            paragraph.Label,
-                            choice.Label);
-                }
+                PostProcessParagraph(paragraph, ret_story);
             }
 
             return ret_story;
         }
 
-        public static StoryEffect GetEffectByCommand(string commandName, string[] arguments)
+        /// <summary>
+        /// Link the labels to paragraphs and if conditions to commnds.
+        /// </summary>
+        /// <param name="paragraph"></param>
+        /// <param name="ret_story"></param>
+        public static void PostProcessParagraph(StoryParagraph paragraph, Story ret_story)
         {
-            StoryEffect ret_effect = null;
+            // Link choices label to paragraphs
+            foreach(var choice in paragraph.Choices.OfType<StoryChoice>())
+            {
+                if(ret_story.HasChunk(choice.Label))
+                    choice.Next = ret_story.GetChunk(choice.Label);
+                else
+                    Log.LogErr("Paragraph {0}. Can't find paragraph Label : '{1}' in choices.",
+                        paragraph.Label,
+                        choice.Label);
+            }
+
+            // Get the effects that can be linked
+            var links = paragraph.PostEffects
+                .Concat(paragraph.Effects)
+                .OfType<IParagraphLink>();
+            List<IParagraphLink> cdtLinks = new();
+            
+            // Get the effects that can be linked, but are hidden in the condition structure
+            foreach (var cdt in paragraph.PostEffects
+                .Concat(paragraph.Effects)
+                .OfType<ICommandArborescence>())
+            {
+                cdt.GetSubEffects(cdtLinks);
+            }
+            
+            // Link Labels to paragraphs
+            foreach (var effect in links.Concat(cdtLinks))
+            {
+                if(ret_story.HasChunk(effect.ParagraphLabel))
+                    effect.Next = ret_story.GetChunk(effect.ParagraphLabel);
+                else
+                    Log.LogErr("Paragraph {0}. Can't find paragraph Label : '{1}' in GOTO effect.",
+                        paragraph.Label,
+                        effect.ParagraphLabel);
+            }
+        }
+
+        public static List<StoryderEffect> GetEffects(string[] effects, IXLRow row)
+        {
+            List<StoryderEffect> ret = new();
+
+            // Convert strings to implemented effects
+            foreach(string effectString in effects)
+            {                
+                string[] args = effectString.Split(':');
+                string effectName = args[0].Trim().ToUpper();
+                try {
+                    StoryderEffect row_effect = GetEffectByCommand(effectName, args[1..]);
+                    ret.Add(row_effect);
+
+                    // Error only if some text.
+                    // Empty string must be dealt with, for the ICommandArborescence to work properly.
+                    if(row_effect == null && !string.IsNullOrWhiteSpace(effectName))
+                        Log.LogErr("Row {0}. Could not parse effect '{1}'.",
+                            row.RowNumber(),
+                            effectName);
+                } catch (Exception e) {
+                    Log.LogErr("Row {0}. Exception when parsing effect '{1}' : '{2}'",
+                            row.RowNumber(),
+                            effectName,
+                            e.Message);
+                }
+            }
+
+            // Link the arborescence effects to following commands
+            for(int i = ret.Count-1; i >= 0; i--)
+            {
+                if(ret[i] is ICommandArborescence ce)
+                {
+                    // Check if the last command to link exists.
+                    if(i+ce.SubNumber >= ret.Count)
+                        Log.LogErr("Row {0}. Could not link Arborecence Command {1} to following Effect. No command at position {2}.",
+                            row.RowNumber(),
+                            ce.GetType().Name,
+                            i+ce.SubNumber);
+                    // Assume if we can link to the last command, we can link the other ones to.
+                    else {
+                        // Give the commands to the arborescence
+                        ce.AddSubEffects(ret.GetRange(i+1, ce.SubNumber).ToArray());
+                        // Remove the given commands
+                        for(int j = 0; j < ce.SubNumber; j++)
+                            ret.RemoveAt(i+1);
+                    }
+                }
+            }
+
+            // THEN, remove the null effects due to empty strings
+            ret.RemoveAll(x => x == null);
+
+            return ret;
+        }
+
+        public static StoryderEffect GetEffectByCommand(string commandName, string[] arguments)
+        {
+            StoryderEffect ret_effect = null;
 
             // Instanciate the effect actuator using the command name.
             switch(commandName)
             {
+                case "ADD" :
+                    ret_effect = SumVarEffect.Create(arguments);
+                    break;
+                case "GOTO" :
+                    ret_effect = GotoEffect.Create(arguments);
+                    break;
+                case "CHOICE" :
+                    ret_effect = AddChoiceEffect.Create(arguments);
+                    break;
+                case "APPEND" :
+                    ret_effect = AppendTextEffect.Create(arguments);
+                    break;
+                case "TEXTONLY" :
+                    ret_effect = TextOnlyEffect.Create(arguments);
+                    break;
                 case "PICT" :
                     ret_effect = PictureEffect.Create(arguments);
                     break;
                 case "MUSIC" :
                     ret_effect = MusicEffect.Create(arguments);
                     break;
-                case "TEXTONLY" :
-                    ret_effect = TextOnlyEffect.Create(arguments);
+                case "SUM" :
+                    ret_effect = SumVarEffect.Create(arguments);
+                    break;
+                case "SET" :
+                    ret_effect = SetVarEffect.Create(arguments);
+                    break;
+                case "REM" :
+                    ret_effect = RemoveVarEffect.Create(arguments);
+                    break;
+                case "IF" :
+                    ret_effect = ConditionEffect.Create(arguments);
                     break;
             }
+
+            // If not general command, should be a system specific command. 
+            ret_effect ??= Game.Static.System.ParseEffectCommand(commandName, arguments);
 
             return ret_effect;
         }

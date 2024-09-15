@@ -6,9 +6,9 @@
 [ext_resource type="Script" path="res://Scripts/Scenes/PictureDisplay.cs" id="3_5xb8d"]
 
 [sub_resource type="StyleBoxEmpty" id="1"]
-content_margin_left = 20.0
+content_margin_left = 40.0
 content_margin_top = 20.0
-content_margin_right = 20.0
+content_margin_right = 40.0
 content_margin_bottom = 20.0
 
 [node name="StoryReader" type="Control"]
@@ -25,6 +25,9 @@ layout_mode = 0
 anchor_right = 0.2
 anchor_bottom = 1.0
 offset_right = -10.0
+
+[node name="CharacterSheet" type="RichTextLabel" parent="CharacterPanel"]
+layout_mode = 2
 
 [node name="MenuPanel" type="PanelContainer" parent="."]
 layout_mode = 0
