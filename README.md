@@ -58,23 +58,29 @@ x - ADD : Plays the music on top of already played ones.
 TODO : MUSIC LOOP TYPE(Simple, repeatX, repeatDelay, pitch...)
 
 #### Variables Commands
+Values can be random. use roll macros with the  '[' ']'.
+See Weaver documentation on Luck module for more details.
 
  - SUM:\<varpath>:\<val> : Sum the given value to the variable at \<varpath>. Sum if Integer, concatenation if string.
  - SET:\<varpath>:\<val> : Set the given value to the variable at \<varpath>. Creates if doesn't exist.
  - REM:\<varpath>		 : Remove the given variable at \<varpath>.
-x- ADD_i:\<varpath>:\<val> : The given value is appended at the end of the given array.
-x- SET_i:\<varpath>:\<val> : Initializes the array at \<varpath> with the given value.
-x- REM_i:\<varpath>:\<val> : Removes the given value from the array at \<varpath>.
+ - ADD_i:\<varpath>:\<val> : The given value is appended at the end of the given List array.
+ - SET_i:\<varpath>:\<val> : Initializes the List array at \<varpath> with the given value.
+ - REM_i:\<varpath>:\<val> : Removes the given value from the List array at \<varpath>.
 
-#### If Commands
+#### Condition Commands
+Values can be random. use roll macros with the  '[' ']'.
+See Weaver documentation on Luck module for more details.
+Values can be \<varpath> : the value of the variable at the given path will be tested.
 
  - IF:\<condition>;\<effect>;\<else_effect> : only one effect (use GOTO and APPLY for more complex stuff). See Weaver.Heroes.Destiny's Readme for more details on how the parser works.
-   - \<condition> : \<varpath>==\<val> : the variable is equal to the given value.
-   - \<condition> : \<varpath>!=\<val> : the variable is different from the given value.
-   - \<condition> : \<varpath>\<\<val> : the variable is inferior to the given value.
-   - \<condition> : \<varpath>>\<val> : the variable is superior to the given value.
-   - \<condition> : \<varpath>\<=\<val> : the variable is inferior or equal to the given value.
-   - \<condition> : \<varpath>>=\<val> : the variable is superior or equal to the given value.
+   - \<condition> : \<val>==\<val> : the variable is equal to the given value.
+   - \<condition> : \<val>!=\<val> : the variable is different from the given value.
+   - \<condition> : \<val>\<\<val> : the variable is inferior to the given value.
+   - \<condition> : \<val>\>\<val> : the variable is superior to the given value.
+   - \<condition> : \<val>\<=\<val> : the variable is inferior or equal to the given value.
+   - \<condition> : \<val>\>=\<val> : the variable is superior or equal to the given value.
+ - CONTAINS:\<varpath>:\<val>;\<effect>;\<else_effect> : A condition testing if the given array variable contains the given value.
 
 ##### Structure of normal IF
 A __IF__ command will execute the first following command if true, the second if false. 
@@ -106,7 +112,7 @@ The IF structure can be stacked this way in order to use multiple conditions.
 &emsp;&emsp;If2FalseEffect;<br>
 &emsp;If1FalseEffect;<br>
 
-#### Fighting Fantasy Systen Commands
+#### Fighting Fantasy System Commands
 
 The FFS implements some specific commands for convenience of use.
 
@@ -131,11 +137,12 @@ x- UNSET_COMBAT_PROXY : Removes the combat proxy.
 
 ## TODO
 
- - random and skill test related commands
- - integrate Macro Rolls in effect macros. Expecialy conditions and variable commands.
- - CONTAINS condition : str is contained in str[] or int contained in int[].
  - eat food/drink potion => use system check
  - GAME_OVER/VICTORY
+ - use keyboard to play
+ - CORRECTION : imprement a function to the conditions interface to prevent border effects when trying to read results without actually wanting to roll the dice.
+ - CORRECTION : The ValueModule<list> do not update the value when changed because its a reference...
+	use a ValueCollectionModule ?
  
 ## Credits
  - Code : __Ravath__

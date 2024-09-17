@@ -54,7 +54,7 @@ public class CombatEffect : StoryderEffect, ICommandArborescence, IStoryParagrap
             Agent e = new Agent("ennemi_"+eindex);
             e.Name = ennemiesStats[eindex*3+0].Trim();
             e.Ability = int.Parse(ennemiesStats[eindex*3+1].Trim());
-            e.Strenght = int.Parse(ennemiesStats[eindex*3+2].Trim());
+            e.Stamina = int.Parse(ennemiesStats[eindex*3+2].Trim());
             ennemies.Add(e);
             eindex++;
         }
@@ -117,7 +117,7 @@ public class CombatEffect : StoryderEffect, ICommandArborescence, IStoryParagrap
         foreach(Agent e in Ennemies)
             CurrentEnnemies.Add(new Agent(e.ModuleName) {
                 Name = e.Name,
-                Strenght = e.Strenght,
+                Stamina = e.Stamina,
                 Ability = e.Ability
             }
         );
@@ -164,12 +164,12 @@ public class CombatEffect : StoryderEffect, ICommandArborescence, IStoryParagrap
 
         // Print belligerants status
         description.AppendFormat("[ Vous : Habileté {0} ; Endurance {1} ]\n",
-            System.Hero.Ability, System.Hero.Strenght);
+            System.Hero.Ability, System.Hero.Stamina);
         foreach(Agent en in CurrentEnnemies)
         {
             description.AppendFormat("[ {2} : Habileté {0} ; Endurance {1} ]\n",
                 en.Ability,
-                en.Strenght,
+                en.Stamina,
                 en.Name);
         }
         description.AppendLine();
@@ -236,7 +236,7 @@ public class Escape : IStoryParagraphProvider
 
     public StoryParagraph GetNextStoryChoice(IStoryChoice choice)
     {
-        Combat.System.Hero.Strenght -= 2;
+        Combat.System.Hero.Stamina -= 2;
         StoryParagraph next_escape =  new StoryParagraph() {
             Text = "Vous parvenez a vous enfuir, mais vos adversaires parviennent a vous blesser une derniere fois dans votre fuite.\nVous perdez 2 points d'Endurance.\n",
         };
@@ -289,7 +289,7 @@ public class Assault : IStoryParagraphProvider
 
         foreach(DamageArgument da in _assaultResults
             .Where(x => x.Damage != 0)
-            .Where(x => x.Damage < x.Target.Strenght))
+            .Where(x => x.Damage < x.Target.Stamina))
         {
             next.Choices.Add(new ComputedStoryChoice(new UseLuck(Combat, da, _assaultResults), da.ToLuckChoice()));
         }

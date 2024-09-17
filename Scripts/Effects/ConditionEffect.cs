@@ -17,7 +17,9 @@ public class ConditionEffect : StoryderEffect, ICommandArborescence
 {
     public StoryderEffect ifTrue;
     public StoryderEffect ifFalse;
-    public ICondition condition;
+    public ICondition condition{ private get; set; }
+
+    private bool _isTrue;
 
     public static ConditionEffect Create(string[] args)
     {
@@ -41,7 +43,8 @@ public class ConditionEffect : StoryderEffect, ICommandArborescence
 
     public override void Actuate(StoryReader storyReader)
     {
-        if(condition.IsTrue) {
+        _isTrue = condition.IsTrue;
+        if(_isTrue) {
             storyReader.AppendText(" [ {0} : SUCCESS ]", condition.ToMacro());
             ifTrue?.Actuate(storyReader);
         } else {

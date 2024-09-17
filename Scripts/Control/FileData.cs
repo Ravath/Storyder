@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Godot;
-using SixLabors.Fonts;
 using Weaver.Tales;
 
 namespace Storyder
@@ -255,9 +253,6 @@ namespace Storyder
             // Instanciate the effect actuator using the command name.
             switch(commandName)
             {
-                case "ADD" :
-                    ret_effect = SumVarEffect.Create(arguments);
-                    break;
                 case "GOTO" :
                     ret_effect = GotoEffect.Create(arguments);
                     break;
@@ -276,6 +271,8 @@ namespace Storyder
                 case "MUSIC" :
                     ret_effect = MusicEffect.Create(arguments);
                     break;
+                case "ADD" :
+                    goto case "SUM";
                 case "SUM" :
                     ret_effect = SumVarEffect.Create(arguments);
                     break;
@@ -285,8 +282,20 @@ namespace Storyder
                 case "REM" :
                     ret_effect = RemoveVarEffect.Create(arguments);
                     break;
+                case "ADD[]" :
+                    ret_effect = ArrayAddEffect.Create(arguments);
+                    break;
+                case "SET[]" :
+                    ret_effect = ArraySetEffect.Create(arguments);
+                    break;
+                case "REM[]" :
+                    ret_effect = ArrayRemoveEffect.Create(arguments);
+                    break;
                 case "IF" :
                     ret_effect = ConditionEffect.Create(arguments);
+                    break;
+                case "CONTAINS" :
+                    ret_effect = ContainsEffect.Create(arguments);
                     break;
             }
 

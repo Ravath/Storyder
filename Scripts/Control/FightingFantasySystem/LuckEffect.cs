@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using Weaver.Heroes.Body;
+using Weaver.Heroes.Body.Value;
 using Weaver.Heroes.Destiny;
 
 namespace Storyder.FightingFantasySystem;

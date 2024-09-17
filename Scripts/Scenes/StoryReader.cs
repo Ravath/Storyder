@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.AccessControl;
 using Weaver.Heroes.Body;
+using Weaver.Heroes.Body.Value;
 using Weaver.Tales;
 
 public partial class StoryReader : Control
@@ -33,11 +34,11 @@ public partial class StoryReader : Control
 		
 
 		// FileData.CreateDefaultExcel("Template.xlsx");
-		GetStory("Ressources/LaSorciereDesNeiges/Story.xlsx");
-		// GetStory("Ressources/Test/Story.xlsx");
-		Game.Static.System.Init();
-		InitDisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
-		DisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
+		Game.Static.Init();
+		InitDisplayCharacter(Game.Static.HeroModule);
+		DisplayCharacter(Game.Static.HeroModule);
+		// GetStory("Ressources/LaSorciereDesNeiges/Story.xlsx");
+		GetStory("Ressources/Test/Story.xlsx");
 	}
 
 	public void InitDisplayCharacter(Module module)
@@ -46,15 +47,49 @@ public partial class StoryReader : Control
 		foreach(Module m in module.GetChildren<Module>())
 		{
 			if(m is IValue<int> mi) {
-				mi.OnValueChanged += ActualiseIntValues;
+				mi.OnValueChanged += ActualiseValues;
 			}
 			else if(m is IValue<string> ms) {
-				ms.OnValueChanged += ActualiseStringValues;
+				ms.OnValueChanged += ActualiseValues;
 			}
 		}
+		module.OnRegisteredModule += RegisterToNewModule;
+		module.OnRegisteredModule += UnregisterToNewModule;
 	}
 
-	public void DisplayCharacter(Module module)
+    private void RegisterToNewModule(Module module)
+    {
+        if(module is ValueModule<int> vi) {
+			GD.Print(" * Register INT : ", module.ModuleName);
+			vi.OnValueChanged += ActualiseValues;
+		}
+        else if(module is ValueModule<string> vs) {
+			GD.Print(" * Register STRING : ", module.ModuleName);
+			vs.OnValueChanged += ActualiseValues;
+		}
+        else if(module is ValueModule<List<int>> vli) {
+			GD.Print(" * Register LINT : ", module.ModuleName);
+			vli.OnValueChanged += ActualiseValues;
+		}
+        else if(module is ValueModule<List<string>> vls) {
+			GD.Print(" * Register LSTRING : ", module.ModuleName);
+			vls.OnValueChanged += ActualiseValues;
+		}
+    }
+
+    private void UnregisterToNewModule(Module module)
+    {
+        if(module is ValueModule<object> vi) {
+			vi.OnValueChanged -= ActualiseValues;
+		}
+    }
+
+    public void ActualiseValues<T>(IValue<T> sender)
+    {
+		DisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
+    }
+
+    public void DisplayCharacter(Module module)
 	{
 		characterDisplay.Text = module.ModuleName + "\n";
 		foreach(Module m in module.GetChildren<Module>())
@@ -65,21 +100,23 @@ public partial class StoryReader : Control
 			else if(m is IValue<string> ms) {
 				characterDisplay.Text += string.Format("   {0} : {1}\n" , m.ModuleName, ms.Value);
 			}
+			else if(m is IValue<List<int>> mli) {
+				characterDisplay.Text += string.Format("   {0} : \n" , m.ModuleName);
+				foreach(int i in mli.Value) {
+					characterDisplay.Text += string.Format("   - {0}\n" , i);
+				}
+			}
+			else if(m is IValue<List<string>> mls) {
+				characterDisplay.Text += string.Format("   {0} : \n" , m.ModuleName);
+				foreach(string i in mls.Value) {
+					characterDisplay.Text += string.Format("   - {0}\n" , i);
+				}
+			}
 			else {
 				characterDisplay.Text += string.Format(" {0} \n" , m.ModuleName);
 			}
 		}
 	}
-
-    public void ActualiseStringValues(IValue<string> sender)
-    {
-		DisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
-    }
-
-    public void ActualiseIntValues(IValue<int> sender)
-    {
-		DisplayCharacter(Game.Static.BaseModule.GetRegistered("Hero"));
-    }
 
     public void GetStory(string filepath)
 	{

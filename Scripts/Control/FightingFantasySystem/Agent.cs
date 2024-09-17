@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using Weaver.Heroes.Body;
@@ -9,19 +10,20 @@ namespace Storyder.FightingFantasySystem;
 
 public class Agent : Module
 {
-    private ValueModule<int> luck, strenght, ability;
-    private ValueModule<int> start_luck, start_strenght, start_ability;
-    private ValueModule<int> potion_luck, potion_strenght, potion_ability;
+    private ValueModule<int> luck, stamina, ability;
+    private ValueModule<int> start_luck, start_stamina, start_ability;
+    private ValueModule<int> potion_luck, potion_stamina, potion_ability;
     private ValueModule<int> food;
+    private ValueModule<List<string>> equipment;
 
     public string Name { get; set; } = "Vous";
     public int Ability { 
         get => ability.BaseValue; 
         set => ability.BaseValue = value; 
     }
-    public int Strenght { 
-        get => strenght.BaseValue; 
-        set => strenght.BaseValue = value; 
+    public int Stamina { 
+        get => stamina.BaseValue; 
+        set => stamina.BaseValue = value; 
     }
     public int Luck {
         get => luck.BaseValue; 
@@ -29,9 +31,9 @@ public class Agent : Module
     }
 
     public bool IsDead {
-        get => Strenght <= 0;
+        get => Stamina <= 0;
     }
-    public bool IsHero { get { return ModuleName == System.HeroModuleName; } }
+    public bool IsHero { get { return ModuleName == Game.HeroModuleName; } }
 
 
     public Agent(string moduleName) : base(moduleName)
@@ -41,28 +43,32 @@ public class Agent : Module
         Module potions = Register(new Module("Potions"));
         // Attributes
         ability = new ValueModule<int>("Ability", Roll.RollMacro("1d6+6"));
-        strenght = new ValueModule<int>("Strenght", Roll.RollMacro("2d6+12"));
+        stamina = new ValueModule<int>("Stamina", Roll.RollMacro("2d6+12"));
         luck = new ValueModule<int>("Luck", Roll.RollMacro("1d6+6"));
         current.Register(ability);
-        current.Register(strenght);
+        current.Register(stamina);
         current.Register(luck);
         // Start values
         start_ability = new ValueModule<int>("Ability", ability.Value);
-        start_strenght = new ValueModule<int>("Strenght", strenght.Value);
+        start_stamina = new ValueModule<int>("Stamina", stamina.Value);
         start_luck = new ValueModule<int>("Luck", luck.Value);
         start.Register(start_ability);
-        start.Register(start_strenght);
+        start.Register(start_stamina);
         start.Register(start_luck);
         // Potion counters
         potion_ability = new ValueModule<int>("Ability", 0);
-        potion_strenght = new ValueModule<int>("Strenght", 0);
+        potion_stamina = new ValueModule<int>("Stamina", 0);
         potion_luck = new ValueModule<int>("Luck", 0);
         potions.Register(potion_ability);
-        potions.Register(potion_strenght);
+        potions.Register(potion_stamina);
         potions.Register(potion_luck);
         // Food
         food = new ValueModule<int>("Food", 10);
         Register(food);
+        // Equipement
+        equipment = new ValueModule<List<string>>("Equipment", new ());
+        Register(equipment);
+        equipment.BaseValue.Add("Sword");
     }
 
     public bool LuckTest()
@@ -95,7 +101,7 @@ public class Agent : Module
 
     public void TakeDamage(DamageArgument damage)
     {
-        Strenght -= damage.Damage;
+        Stamina -= damage.Damage;
     }
 
     public bool HasFood()
@@ -108,7 +114,7 @@ public class Agent : Module
         Contract.Assert(HasFood());
 
         food.BaseValue -= 1;
-        strenght.BaseValue = Math.Max(start_strenght.BaseValue, strenght.BaseValue + 4);
+        stamina.BaseValue = Math.Max(start_stamina.BaseValue, stamina.BaseValue + 4);
     }
 
     #region Potions
@@ -125,17 +131,17 @@ public class Agent : Module
         ability.BaseValue = start_ability.BaseValue;
     }
 
-    public bool HasStrenghtPotion()
+    public bool HasStaminaPotion()
     {
-        return potion_strenght.BaseValue > 0;
+        return potion_stamina.BaseValue > 0;
     }
 
-    public void DrinkStrenghtPotion()
+    public void DrinkStaminaPotion()
     {
-        Contract.Assert(HasStrenghtPotion());
+        Contract.Assert(HasStaminaPotion());
 
-        potion_strenght.BaseValue -= 1;
-        strenght.BaseValue = start_strenght.BaseValue;
+        potion_stamina.BaseValue -= 1;
+        stamina.BaseValue = start_stamina.BaseValue;
     }
 
     public bool HasLuckPotion()

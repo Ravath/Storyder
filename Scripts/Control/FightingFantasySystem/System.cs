@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using Weaver.Heroes.Body;
 using Weaver.Heroes.Body.Value;
@@ -9,8 +10,7 @@ namespace Storyder.FightingFantasySystem;
 
 public class System : ISystemImplementation
 {
-    public const string HeroModuleName = "Hero";
-    private Agent _hero = new(HeroModuleName);
+    private Agent _hero = new(Game.HeroModuleName);
     public Agent Hero { get => _hero; }
 
     public bool IsGameFinished => Hero.IsDead;
@@ -26,7 +26,8 @@ public class System : ISystemImplementation
     public void Init()
     {
         Module baseModule = Game.Static.BaseModule;
-        baseModule.UnregisterAll();
+        if(baseModule.HasRegistered(_hero))
+            baseModule.Unregister(_hero);
 
         // Init Main Character
         _hero = new("Hero");

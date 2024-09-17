@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Weaver.Heroes.Body;
+using Weaver.Heroes.Body.Value;
 
 namespace Storyder;
 
@@ -13,6 +15,10 @@ public class Game
         }
     }
     public Module BaseModule { get; private set; } = new("Base");
+    public Module WorkModule { get; private set; } = new("W");
+    public ValueModule<List<string>> Flags { get; private set; } = new("Flags", new List<string>());
+    public const string HeroModuleName = "Hero";
+    public Module HeroModule { get => BaseModule.GetRegistered(HeroModuleName); }
 
     public ISystemImplementation System { get; private set; }
 
@@ -20,4 +26,16 @@ public class Game
         System = new FightingFantasySystem.System();
     }
 
+    public void Init()
+    {
+        if(!BaseModule.HasRegistered(WorkModule))
+            BaseModule.Register(WorkModule);
+		WorkModule.UnregisterAll();
+        if(!BaseModule.HasRegistered(Flags))
+            BaseModule.Register(Flags);
+		WorkModule.UnregisterAll();
+        Flags.UnregisterAll();
+        Flags.BaseValue.Clear();
+        System.Init();
+    }
 }

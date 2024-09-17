@@ -30,6 +30,6 @@ public class DamageArgument
 
     internal void ApplyDamage()
     {
-        Target.Strenght -= Damage;
+        Target.Stamina -= Damage;
     }
 }
