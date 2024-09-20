@@ -11,7 +11,7 @@ public class AppendTextEffect : StoryderEffect
     {
         CheckNumberArguments(args,1,1);
         
-        string strLabel = args[0].Trim();
+        string strLabel = args[0].Trim().Replace("\\n", "\n");
         AppendTextEffect ret = new()
         {
             Text = strLabel

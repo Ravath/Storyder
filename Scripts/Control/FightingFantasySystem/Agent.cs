@@ -13,7 +13,7 @@ public class Agent : Module
     private ValueModule<int> luck, stamina, ability;
     private ValueModule<int> start_luck, start_stamina, start_ability;
     private ValueModule<int> potion_luck, potion_stamina, potion_ability;
-    private ValueModule<int> food;
+    private ValueModule<int> food, gold;
     private ValueModule<List<string>> equipment;
 
     public string Name { get; set; } = "Vous";
@@ -65,6 +65,9 @@ public class Agent : Module
         // Food
         food = new ValueModule<int>("Food", 10);
         Register(food);
+        // Gold
+        gold = new ValueModule<int>("Gold", 0);
+        Register(gold);
         // Equipement
         equipment = new ValueModule<List<string>>("Equipment", new ());
         Register(equipment);

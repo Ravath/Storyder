@@ -25,6 +25,8 @@ public abstract class VariableEffect : StoryderEffect
             if(Type == VariableType.Roll)
             {
                 rVal.Roll();
+                if(negativeRoll)
+                    return - rVal.NetResult;
                 return rVal.NetResult;
             }
             return iVal;
@@ -32,6 +34,7 @@ public abstract class VariableEffect : StoryderEffect
     }
     private int iVal;
     private readonly IRoll rVal;
+    private bool negativeRoll = false;
 
     public VariableEffect(string modulePath, string strVal)
     {
@@ -42,9 +45,14 @@ public abstract class VariableEffect : StoryderEffect
             // Its an int
             iVal = val;
             Type = VariableType.Int;
-        } else if(strVal.StartsWith("[") && strVal.EndsWith("]") ) {
+        } else if(strVal.StartsWith("-[") || strVal.StartsWith("[") && strVal.EndsWith("]") ) {
             // Its a Roll
-            rVal = Roll.Parse(strVal[1..^1]);
+            if(strVal.StartsWith("-[")) {
+                rVal = Roll.Parse(strVal[2..^1]);
+                negativeRoll = true;
+            }else{
+                rVal = Roll.Parse(strVal[1..^1]);
+            }
             Type = VariableType.Roll;
         } else {
             // Assume its a boring string, do nothing
@@ -72,6 +80,8 @@ public abstract class VariableEffect : StoryderEffect
             case VariableType.Roll:
                 rVal.Roll();
                 iVal = rVal.NetResult;
+                if(negativeRoll)
+                    iVal *= -1;
                 goto case VariableType.Int;
             case VariableType.Int:
                 ActuateInt(storyReader, iVal);

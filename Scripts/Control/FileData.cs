@@ -256,6 +256,9 @@ namespace Storyder
                 case "GOTO" :
                     ret_effect = GotoEffect.Create(arguments);
                     break;
+                case "APPLY" :
+                    ret_effect = ApplyEffect.Create(arguments);
+                    break;
                 case "CHOICE" :
                     ret_effect = AddChoiceEffect.Create(arguments);
                     break;

@@ -40,8 +40,25 @@ public partial class StoryReader : Control
 		// GetStory("Ressources/LaSorciereDesNeiges/Story.xlsx");
 		GetStory("Ressources/Test/Story.xlsx");
 	}
+	
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is InputEventKey keyEvent && keyEvent.Pressed)
+		{
+			if(keyEvent.PhysicalKeycode >= Key.Key0 
+				&& keyEvent.PhysicalKeycode <= Key.Key9)
+			{
+				int index = (int)(keyEvent.PhysicalKeycode - Key.Key0);
+				index = index==0 ? 9 : index-1;
+				if(index < _currentChoices.Count)
+				{
+					SetChoice(index);
+				}
+			}
+		}
+	}
 
-	public void InitDisplayCharacter(Module module)
+    public void InitDisplayCharacter(Module module)
 	{
 		characterDisplay.Text = module.ModuleName + "\n";
 		foreach(Module m in module.GetChildren<Module>())
@@ -154,12 +171,18 @@ public partial class StoryReader : Control
 		int index = 0;
 		foreach(var choice in _currentChoices)
 		{
-			textDisplay.Text += string.Format("\t[url={0}]{1}[/url]\n", index++, choice.Text);
+			textDisplay.Text += string.Format("\t[url={0}]{2}. {1}[/url]\n", index++, choice.Text, index);
 		}
 		textDisplay.ScrollToLine(0);
 	}
 
 	public void _on_text_meta_clicked(string meta)
+	{
+		int index = int.Parse(meta);
+		SetChoice(index);
+	}
+
+	private void SetChoice(int choiceIndex)
 	{
 		// Actuate Post-Effects
 		foreach (var effect in _currentStoryParagraph.PostEffects)
@@ -168,8 +191,7 @@ public partial class StoryReader : Control
 		}
 
 		// Go to next paragraph
-		int index = int.Parse(meta);
-		SetStoryChunk(_currentChoices[index].Next);
+		SetStoryChunk(_currentChoices[choiceIndex].Next);
 	}
 
 	public void SetPicture(FileInfo filepath)

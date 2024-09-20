@@ -32,11 +32,13 @@ Les PostEffects sont des effets appliqués après que le joueur est fait son cho
 
 ##### General Commands
 
-x- SKIP(:delay): Continues to the next story paragraph as soon as every effect has been actuated. If pre-effect, requires to have only one continue choice.
+x- WAIT(:delay): Continues to the next story paragraph automaticaly, but only after every effect has been completed.
+		If pre-effect, requires to have only one continue choice.
+		useful for cinematics and fade-in/outs.
  - APPEND:\<text> : Appends the given text at the end of displayed paragraph.
  - CHOICE:\<LAB>:Text : Appends the given choice to the default onces.
  - GOTO:\<LAB> : continues to the paragraph with the given Label.
-x- APPLY:\<LAB> : applies the effects of the paragraph with the given Label.
+ - APPLY:\<LAB> : applies the pre-effects of the paragraph with the given Label.
  - TEXTONLY(:\<on/off>) : removes the picture space from the GUI for text only design. Setting a picture automatically deactivates this parameter. 'on' by default if no argument given.
 
 #### Picture Commands
@@ -59,6 +61,7 @@ TODO : MUSIC LOOP TYPE(Simple, repeatX, repeatDelay, pitch...)
 
 #### Variables Commands
 Values can be random. use roll macros with the  '[' ']'.
+Negative rolls with '-[' ']'.
 See Weaver documentation on Luck module for more details.
 
  - SUM:\<varpath>:\<val> : Sum the given value to the variable at \<varpath>. Sum if Integer, concatenation if string.
@@ -69,7 +72,7 @@ See Weaver documentation on Luck module for more details.
  - REM_i:\<varpath>:\<val> : Removes the given value from the List array at \<varpath>.
 
 #### Condition Commands
-Values can be random. use roll macros with the  '[' ']'.
+Values can be random. use roll macros with the  '[' ']', and support operations +-*/.
 See Weaver documentation on Luck module for more details.
 Values can be \<varpath> : the value of the variable at the given path will be tested.
 
@@ -137,10 +140,11 @@ x- UNSET_COMBAT_PROXY : Removes the combat proxy.
 
 ## TODO
 
+ - check if can do -[1d6]
  - eat food/drink potion => use system check
+ - CORRECTION : implement a function to the conditions interface to prevent border effects when trying to read results without actually wanting to roll the dice.
+ - Use a pop-up with user interaction to perform tests.
  - GAME_OVER/VICTORY
- - use keyboard to play
- - CORRECTION : imprement a function to the conditions interface to prevent border effects when trying to read results without actually wanting to roll the dice.
  - CORRECTION : The ValueModule<list> do not update the value when changed because its a reference...
 	use a ValueCollectionModule ?
  
