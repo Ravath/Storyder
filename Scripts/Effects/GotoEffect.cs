@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Emit;
 using Weaver.Tales;
 
 namespace Storyder;
@@ -25,5 +26,10 @@ public class GotoEffect : StoryderEffect, IParagraphLink
     public override void Actuate(StoryReader storyReader)
     {
         storyReader.SetStoryChunk(Next);
+    }
+
+    public override string GetTrace()
+    {
+        return "GOTO : " + ParagraphLabel;
     }
 }

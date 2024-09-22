@@ -29,4 +29,9 @@ public class ApplyEffect : StoryderEffect, IParagraphLink
 			effect.Actuate(storyReader);
 		}
     }
+
+    public override string GetTrace()
+    {
+        return string.Format("APPLY {0}", ParagraphLabel);
+    }
 }

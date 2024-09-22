@@ -278,27 +278,35 @@ namespace Storyder
                     goto case "SUM";
                 case "SUM" :
                     ret_effect = SumVarEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
                 case "SET" :
                     ret_effect = SetVarEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
                 case "REM" :
                     ret_effect = RemoveVarEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
                 case "ADD[]" :
                     ret_effect = ArrayAddEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
                 case "SET[]" :
                     ret_effect = ArraySetEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
                 case "REM[]" :
                     ret_effect = ArrayRemoveEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
                 case "IF" :
                     ret_effect = ConditionEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
                 case "CONTAINS" :
                     ret_effect = ContainsEffect.Create(arguments);
+                    ret_effect.PublicTrace = true;
                     break;
             }
 

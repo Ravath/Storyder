@@ -27,4 +27,9 @@ public class PictureEffect : StoryderEffect
         storyReader.HidePicturePanel(false);
         storyReader.SetPicture(filepath);
     }
+
+    public override string GetTrace()
+    {
+        return "LOAD PICTURE : " + filepath.FullName;
+    }
 }

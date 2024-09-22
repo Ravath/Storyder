@@ -41,4 +41,9 @@ public class TextOnlyEffect : StoryderEffect
     {
         storyReader.HidePicturePanel(setTextonly);
     }
+
+    public override string GetTrace()
+    {
+        return string.Format("TEXTONLY : {0}", setTextonly?"ON":"OFF");
+    }
 }

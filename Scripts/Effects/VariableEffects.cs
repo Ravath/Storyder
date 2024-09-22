@@ -59,10 +59,9 @@ public abstract class VariableEffect : StoryderEffect
         }
     }
 
-    public T GetModule<T>()
+    public T GetModule<T>(string modulePath)
     {
-        T m = Game.Static.BaseModule.GetRegisteredByPath<T>(ModulePath);
-        Debug.Assert(m != null);
+        T m = Game.Static.BaseModule.GetRegisteredByPath<T>(modulePath);
         return m;
     }
 
@@ -73,9 +72,25 @@ public abstract class VariableEffect : StoryderEffect
 
     public override void Actuate(StoryReader storyReader)
     {
+        string usedStr = StrVal;
+        // Check if val is not a ModulePath
+        if(Game.Static.BaseModule.HasRegisteredByPath(StrVal)) {
+            Module valVar = GetModule<Module>(StrVal);
+            if (valVar is ValueModule<int> vi) {
+                Type = VariableType.Int;
+                iVal = vi.Value;
+            } else if (valVar is ValueModule<string> vs) {
+                Type = VariableType.String;
+                usedStr = vs.BaseValue;
+            } else {
+                throw new ArgumentException("Module "+StrVal+" Must be a Int or Str ValueModule.");
+            }
+        }
+
+        // Assign value
         switch(Type) {
             case VariableType.String:
-                ActuateStr(storyReader, StrVal);
+                ActuateStr(storyReader, usedStr);
                 break;
             case VariableType.Roll:
                 rVal.Roll();
@@ -84,11 +99,29 @@ public abstract class VariableEffect : StoryderEffect
                     iVal *= -1;
                 goto case VariableType.Int;
             case VariableType.Int:
-                ActuateInt(storyReader, iVal);
+                try { ActuateInt(storyReader, iVal); }
+                catch(ArgumentException) {
+                    if(Type == VariableType.Int) {
+                        Type = VariableType.String;
+                        Actuate(storyReader);
+                    } else { throw; }
+                }
+
                 break;
         }
     }
 
+    public abstract string EffectName { get; }
     public abstract void ActuateInt(StoryReader storyReader, int val);
     public abstract void ActuateStr(StoryReader storyReader, string val);
+
+    public override string GetTrace()
+    {
+        string v = StrVal;
+        if(Type == VariableType.Int)
+            v = iVal.ToString();
+        else if(Type == VariableType.Roll)
+            v = rVal.ToMacro() + "(" + rVal.NetResult + ")";
+        return string.Format("{2} : {0} : {1}", ModulePath, v, EffectName);
+    }
 }

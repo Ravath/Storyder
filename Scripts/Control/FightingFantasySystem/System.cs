@@ -30,7 +30,7 @@ public class System : ISystemImplementation
             baseModule.Unregister(_hero);
 
         // Init Main Character
-        _hero = new("Hero");
+        _hero = new(Game.HeroModuleName);
         baseModule.Register(_hero);
     }
 

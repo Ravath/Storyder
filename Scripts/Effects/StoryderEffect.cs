@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using DocumentFormat.OpenXml.Office2016.Drawing.Command;
+using Godot;
 using Weaver.Heroes.Destiny;
 using Weaver.Tales;
 
@@ -12,6 +14,8 @@ namespace Storyder;
 /// </summary>
 public abstract class StoryderEffect : IStoryEffect
 {
+    public bool PublicTrace {get; set;} = false;
+
     public static void CheckNumberArguments(string[] args, int min, int max) {
         if(args.Length < min) throw new ArgumentException("Expected at least "+min+" arguments.");
         if(args.Length > max) throw new ArgumentException("Expected at most "+max+" arguments.");
@@ -48,9 +52,14 @@ public abstract class StoryderEffect : IStoryEffect
     }
 
     public abstract void Actuate(StoryReader storyReader);
+    public abstract string GetTrace();
 
     public void Actuate(object target)
     {
-        Actuate((StoryReader) target);
+        StoryReader sr = (StoryReader) target;
+        Actuate(sr);
+        if(PublicTrace) {
+            sr.AppendText(string.Format("  [ {0} ]\n", GetTrace()));
+        }
     }
 }

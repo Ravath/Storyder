@@ -13,6 +13,8 @@ public class ArrayAddEffect : VariableEffect
     {
     }
 
+    public override string EffectName => "ADD[]";
+
     public static ArrayAddEffect Create(string[] args)
     {
         CheckNumberArguments(args,2,2);
@@ -26,13 +28,13 @@ public class ArrayAddEffect : VariableEffect
 
     public override void ActuateInt(StoryReader storyReader, int val)
     {
-        ValueModule<List<int>> vi = GetModule<ValueModule<List<int>>>();
+        ValueModule<List<int>> vi = GetModule<ValueModule<List<int>>>(ModulePath);
         vi.BaseValue.Add(val);
     }
 
     public override void ActuateStr(StoryReader storyReader, string val)
     {
-        ValueModule<List<string>> vi = GetModule<ValueModule<List<string>>>();
+        ValueModule<List<string>> vi = GetModule<ValueModule<List<string>>>(ModulePath);
         vi.BaseValue.Add(val);
     }
 }
@@ -42,6 +44,8 @@ public class ArraySetEffect : VariableEffect
     public ArraySetEffect(string modulePath, string strVal) : base(modulePath, strVal)
     {
     }
+
+    public override string EffectName => "SET[]";
 
     public static ArraySetEffect Create(string[] args)
     {
@@ -75,6 +79,8 @@ public class ArrayRemoveEffect : VariableEffect
     {
     }
 
+    public override string EffectName => "REM[]";
+
     public static ArrayRemoveEffect Create(string[] args)
     {
         CheckNumberArguments(args,2,2);
@@ -94,13 +100,13 @@ public class ArrayRemoveEffect : VariableEffect
 
     public override void ActuateInt(StoryReader storyReader, int val)
     {
-        var m = GetModule<ValueModule<List<int>>>();
+        var m = GetModule<ValueModule<List<int>>>(ModulePath);
         m.BaseValue.Remove(val);
     }
 
     public override void ActuateStr(StoryReader storyReader, string val)
     {
-        var m = GetModule<ValueModule<List<string>>>();
+        var m = GetModule<ValueModule<List<string>>>(ModulePath);
         m.BaseValue.Remove(val);
     }
 }

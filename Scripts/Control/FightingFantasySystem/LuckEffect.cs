@@ -15,7 +15,8 @@ public class LuckEffect : ConditionEffect, ICondition
     /// </summary>
     public bool IsTrue {
         get {
-            return system.Hero.LuckTest();
+            _isTrue = system.Hero.LuckTest();
+            return _isTrue;
         }
     }
 
@@ -29,6 +30,11 @@ public class LuckEffect : ConditionEffect, ICondition
         ret.condition = ret;
 
         return ret;
+    }
+
+    public override string GetTrace()
+    {
+        return string.Format("Luck({0}) : {1}", system.Hero.Luck, _isTrue?"SUCCESS":"FAILURE");
     }
 
     public string ToMacro()

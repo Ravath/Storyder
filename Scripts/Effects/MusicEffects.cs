@@ -26,4 +26,9 @@ public class MusicEffect : StoryderEffect
     {
         storyReader.SetMusic(filepath);
     }
+
+    public override string GetTrace()
+    {
+        return "LOAD MUSIC : " + filepath.FullName;
+    }
 }

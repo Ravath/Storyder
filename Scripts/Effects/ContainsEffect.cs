@@ -9,8 +9,11 @@ namespace Storyder;
 
 public class ContainsEffect : VariableEffect, ICondition
 {
+    private bool _lastResult;
     public StoryderEffect ifTrue;
     public StoryderEffect ifFalse;
+
+    public override string EffectName => " C ";
 
     public ContainsEffect(string modulePath, string strVal) : base(modulePath, strVal)
     {
@@ -36,10 +39,12 @@ public class ContainsEffect : VariableEffect, ICondition
     public bool IsTrue() {
         Module m = Game.Static.BaseModule.GetRegisteredByPath<Module>(ModulePath);
         if (m is ValueModule<List<int>> vli) {
-            return vli.Value.Contains(GetIntVal);
+            _lastResult = vli.Value.Contains(GetIntVal);
+            return _lastResult;
         }
         if (m is ValueModule<List<string>> vls) {
-            return vls.Value.Contains(StrVal);
+            _lastResult = vls.Value.Contains(StrVal);
+            return _lastResult;
         }
         Log.LogErr("CONTAINS test : '{0}' not found.", ModulePath);
         return false;

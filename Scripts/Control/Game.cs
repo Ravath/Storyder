@@ -28,12 +28,10 @@ public class Game
 
     public void Init()
     {
-        if(!BaseModule.HasRegistered(WorkModule))
-            BaseModule.Register(WorkModule);
+        BaseModule.UnregisterAll();
+        BaseModule.Register(WorkModule);
 		WorkModule.UnregisterAll();
-        if(!BaseModule.HasRegistered(Flags))
-            BaseModule.Register(Flags);
-		WorkModule.UnregisterAll();
+        WorkModule.Register(Flags);
         Flags.UnregisterAll();
         Flags.BaseValue.Clear();
         System.Init();

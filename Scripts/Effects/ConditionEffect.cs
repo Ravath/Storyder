@@ -19,7 +19,7 @@ public class ConditionEffect : StoryderEffect, ICommandArborescence
     public StoryderEffect ifFalse;
     public ICondition condition{ private get; set; }
 
-    private bool _isTrue;
+    protected bool _isTrue;
 
     public static ConditionEffect Create(string[] args)
     {
@@ -45,10 +45,8 @@ public class ConditionEffect : StoryderEffect, ICommandArborescence
     {
         _isTrue = condition.IsTrue;
         if(_isTrue) {
-            storyReader.AppendText(" [ {0} : SUCCESS ]", condition.ToMacro());
             ifTrue?.Actuate(storyReader);
         } else {
-            storyReader.AppendText(" [ {0} : FAILURE ]", condition.ToMacro());
             ifFalse?.Actuate(storyReader);
         }
     }
@@ -72,5 +70,10 @@ public class ConditionEffect : StoryderEffect, ICommandArborescence
             subeffects.Add(g2);
         if(ifTrue is ICommandArborescence c2)
             c2.GetSubEffects<T>(subeffects);
+    }
+
+    public override string GetTrace()
+    {
+        return string.Format("{0} : {1}", condition.ToMacro(), _isTrue?"SUCCESS":"FAILURE");
     }
 }

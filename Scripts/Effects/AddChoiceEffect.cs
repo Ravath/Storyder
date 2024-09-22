@@ -35,4 +35,9 @@ public class AddChoiceEffect : StoryderEffect, IParagraphLink
             Text = ChoiceText
         });
     }
+
+    public override string GetTrace()
+    {
+        return string.Format("{0} => {1}", ParagraphLabel, ChoiceText);
+    }
 }

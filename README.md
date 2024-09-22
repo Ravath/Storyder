@@ -54,7 +54,7 @@ x- PICT_RIGHT:\<filepath>(:TRANSITION(:delay)) : same as PICT, but centers on th
 #### Music Commands
 
  - MUSIC:\<filepath>(:TRANSITION(:delay)) : Plays the music at \<filepath> with the given transition delay in ms. If filepath is empty, stops the current music.
-x - SET : just plays the music and stops avery previous ones. (default)
+x - SET : just plays the music and stops every previous ones. (default)
 x - FADE : fading transition. default delay is 1000ms.
 x - ADD : Plays the music on top of already played ones.
 TODO : MUSIC LOOP TYPE(Simple, repeatX, repeatDelay, pitch...)
@@ -122,7 +122,9 @@ The FFS implements some specific commands for convenience of use.
  - LUCK : A standard test against luck. Decreases Luck by 1.
  - COMBAT:\<Ennemy,Hab,Str>+:\<Escape,Desc>:\<CombatType>;\<ENV>;\<VICTORY>;\<FLIGHT>; : Sets up a combat.
 	This will add a "start combat" choice to the paragraph.
-	Hence, the post-effects of the current paragraph will be actuated at the beginning of the combat.
+	The combat is done by following computed paragraphs.
+	Hence, the post-effects of the original paragraph have to be delayed.
+	If the combat is not played, the post-effects will not be actuated, and delayed untill the next combat is finished.
    - \<Ennemy,Hab,Str>+ : One or more ennemy to fight, two ennemies definitions are separated by ','.
      - Ennemy : Ennemi's name.
 	 - Hab 	  : Ennemi's hability
@@ -140,11 +142,17 @@ x- UNSET_COMBAT_PROXY : Removes the combat proxy.
 
 ## TODO
 
- - check if can do -[1d6]
  - eat food/drink potion => use system check
- - CORRECTION : implement a function to the conditions interface to prevent border effects when trying to read results without actually wanting to roll the dice.
+ - Implement UN/SET_COMBAT_PROXY
  - Use a pop-up with user interaction to perform tests.
+ - Basic Menu
  - GAME_OVER/VICTORY
+ - Sorciere des neiges 155 : Epee brisee ?
+ - IMPLEMENT GARGOILE PARALYSIS
+ - IMPLEMENT EQUIP SELECT FOR removing an equipment
+ - Implement Music commands
+ - Implement Picture commands
+ - Implement Wait command
  - CORRECTION : The ValueModule<list> do not update the value when changed because its a reference...
 	use a ValueCollectionModule ?
  

@@ -21,6 +21,12 @@ public partial class StoryReader : Control
 	private StoryParagraph _currentStoryParagraph;
 	private List<IStoryChoice> _currentChoices = new();
 	private string _appendedText = "";
+	/// <summary>
+	/// Used by conbat effects to prevent the post effects 
+	/// to append before the combat ends.
+	/// </summary>
+	private bool delay_postEffects = false;
+	List<IStoryEffect> _delayedEffects = new();
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -185,9 +191,23 @@ public partial class StoryReader : Control
 	private void SetChoice(int choiceIndex)
 	{
 		// Actuate Post-Effects
-		foreach (var effect in _currentStoryParagraph.PostEffects)
+		if(!delay_postEffects)
 		{
-			effect.Actuate(this);
+			// Apply delayed effects first
+			foreach (var effect in _delayedEffects)
+			{
+				effect.Actuate(this);
+			}
+			_delayedEffects.Clear();
+
+			// Apply normal effects
+			foreach (var effect in _currentStoryParagraph.PostEffects)
+			{
+				effect.Actuate(this);
+			}
+		} else {
+			// Remember Effects to play when delay if ended
+			_delayedEffects.AddRange(_currentStoryParagraph.PostEffects);
 		}
 
 		// Go to next paragraph
@@ -237,4 +257,15 @@ public partial class StoryReader : Control
 		});
 		// TODO And then, return to main menu when there is one
 	}
+
+	/// <summary>
+	/// Used by combat system. When activated, stops actuating ANY post-effects,
+	/// and actuates them at next choice change after the desinhibition.
+	/// </summary>
+	/// <param name="inhibit"></param>
+    public void DelayPostEffects(bool inhibit)
+    {
+        delay_postEffects = inhibit;
+    }
+
 }

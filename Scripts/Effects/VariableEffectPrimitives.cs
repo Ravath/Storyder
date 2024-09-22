@@ -7,6 +7,9 @@ namespace Storyder;
 
 public class SumVarEffect : VariableEffect
 {
+
+    public override string EffectName => "ADD";
+    
     public SumVarEffect(string modulePath, string strVal) : base(modulePath, strVal)
     {
     }
@@ -24,19 +27,22 @@ public class SumVarEffect : VariableEffect
 
     public override void ActuateInt(StoryReader storyReader, int val)
     {
-        ValueModule<int> vi = GetModule<ValueModule<int>>();
+        ValueModule<int> vi = GetModule<ValueModule<int>>(ModulePath);
         vi.BaseValue += val;
     }
 
     public override void ActuateStr(StoryReader storyReader, string val)
     {
-        ValueModule<string> vi = GetModule<ValueModule<string>>();
+        ValueModule<string> vi = GetModule<ValueModule<string>>(ModulePath);
         vi.BaseValue += val;
     }
 }
 
 public class SetVarEffect : VariableEffect
 {
+
+    public override string EffectName => "SET";
+
     public SetVarEffect(string modulePath, string strVal) : base(modulePath, strVal)
     {
     }
@@ -67,6 +73,7 @@ public class SetVarEffect : VariableEffect
 
 public class RemoveVarEffect : StoryderEffect
 {
+    
     public string ModulePath { get; set; }
 
     public static RemoveVarEffect Create(string[] args)
@@ -87,5 +94,10 @@ public class RemoveVarEffect : StoryderEffect
     {
         Module m = Game.Static.BaseModule.GetRegisteredByPath<Module>(ModulePath);
         m.Unregister(m.Parent);
+    }
+
+    public override string GetTrace()
+    {
+        return string.Format("{0} : {1}", "REM", ModulePath);
     }
 }

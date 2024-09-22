@@ -24,4 +24,9 @@ public class AppendTextEffect : StoryderEffect
     {
         storyReader.AppendText(Text);
     }
+
+    public override string GetTrace()
+    {
+        return string.Format("APPEND : {0}", Text);
+    }
 }

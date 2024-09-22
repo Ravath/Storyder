@@ -39,6 +39,7 @@ public class CombatEffect : StoryderEffect, ICommandArborescence, IStoryParagrap
 
     public int CurrentNbrAssaults;
     public List<Agent> CurrentEnnemies { get; private set; } = new();
+    public StoryReader storyReader;
 
     public static CombatEffect Create(string[] args, System system)
     {
@@ -112,6 +113,8 @@ public class CombatEffect : StoryderEffect, ICommandArborescence, IStoryParagrap
     public override void Actuate(StoryReader storyReader)
     {
         // Init working variables
+        this.storyReader = storyReader;
+        storyReader.DelayPostEffects(true);
         CurrentNbrAssaults = 0;
         CurrentEnnemies.Clear();
         foreach(Agent e in Ennemies)
@@ -181,6 +184,7 @@ public class CombatEffect : StoryderEffect, ICommandArborescence, IStoryParagrap
 
         // Check for Victory
         if(CurrentEnnemies.Count == 0) {
+            storyReader.DelayPostEffects(false);
             next.Text += "\tVictoire !!";
             next.Effects.Add(Victory);
             return next;
@@ -223,6 +227,11 @@ public class CombatEffect : StoryderEffect, ICommandArborescence, IStoryParagrap
     {
         _assaultResults = assaultResults;
     }
+
+    public override string GetTrace()
+    {
+        return "COMBAT";
+    }
 }
 
 public class Escape : IStoryParagraphProvider
@@ -237,6 +246,7 @@ public class Escape : IStoryParagraphProvider
     public StoryParagraph GetNextStoryChoice(IStoryChoice choice)
     {
         Combat.System.Hero.Stamina -= 2;
+        Combat.storyReader.DelayPostEffects(false);
         StoryParagraph next_escape =  new StoryParagraph() {
             Text = "Vous parvenez a vous enfuir, mais vos adversaires parviennent a vous blesser une derniere fois dans votre fuite.\nVous perdez 2 points d'Endurance.\n",
         };
